@@ -8,7 +8,7 @@ from state import *
 import os
 from copy import copy
 from sp import *
-from parser import *
+from myparser import *
 from itertools import product
 
 
