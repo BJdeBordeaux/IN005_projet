@@ -34,13 +34,13 @@ aut1 = Automate(liste_trans, liste_etats, label = "A1" )
 
 #3
 
-print("À partir ici code écrit par Junji\n")
+print("A partir ici code ecrit par Junji\n")
 print("######\n"*2)
 auto_fichier = Automate.creationAutomate("auto.txt")
 
 
 
-# # état initial
+# # etat initial
 # print(auto_fichier)
 
 # # 2.2.1
@@ -55,7 +55,7 @@ auto_fichier = Automate.creationAutomate("auto.txt")
 # auto_fichier.addState(s1)
 # print(auto_fichier)
 
-# # état final
+# # etat final
 
 # # 2.2.3
 # s1TranLi = auto_fichier.getListTransitionsFrom(s1)

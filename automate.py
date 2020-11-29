@@ -179,8 +179,6 @@ class Automate(AutomateBase):
         """
         if(Automate.estDeterministe(auto)):
             return copy.deepcopy(auto)
-        # # auto_new : Automate 
-        # auto_new = copy.deepcopy(auto)
         def isFinal(listState):
             """ list[State] -> bool
             Pour voir si l'etat comprenant listState est final
@@ -189,44 +187,57 @@ class Automate(AutomateBase):
                 if state in auto.getListFinalStates():
                     return True
             return False
+        # declaration des variables
+        # currentList : list[State]
         currentList = auto.getListInitialStates()
         # stateList : list[list[[State]]]
         stateListList = []
-        stateListList.append(currentList)
         # newStateList : list[State]
         newStateList = []
-        initialState = State(0, True, isFinal(currentList))
         # dictListStateToState : dict{list[State] : State}
         dictListStateToState = dict()
-        dictListStateToState[frozenset(set(currentList))] = initialState
-        newStateList.append(initialState)
         # nextList : list[State]
         nextList = []
         # alphabet
         alphabet = []
-        for transition in auto.listTransitions:
-            alphabet.append(transition.etiquette)
         # newTransitionList : list[transition]
         newTransitionList = []
+        # preparation pour le premier etat
+        stateListList.append(currentList)
+        initialState = State(0, True, isFinal(currentList))
+        # enregistrement pour la relation entre une liste d'etat et un etat correspondante
+        dictListStateToState[frozenset(set(currentList))] = initialState
+        newStateList.append(initialState)
+        # recuperer toutes l'alphabet
+        for transition in auto.listTransitions:
+            alphabet.append(transition.etiquette)
+        # Si on a des ajouts, on continue
+        # Sinon, le nouvel automate est fait
         entrer = 0
         sortir = 1
         while(entrer != sortir):
             entrer = sortir
+            # iteration des lettre
             for lettre in alphabet:
+                # iteration des etats existants
                 for listOfStates in stateListList.copy():
                     currentList = listOfStates
                     nextList = []
+                    # Si on n'est pas bloque
                     while(currentList != nextList):
                         nextList = auto.succ(currentList, lettre)
+                        # ajout de nouvel etat et nouvelle transition s'ils n'existent pas
                         if nextList not in stateListList:
                             stateListList.append(nextList)
                             newState = State(sortir,False, isFinal(nextList))
                             newStateList.append(newState)
                             dictListStateToState[frozenset(set(nextList))] = newState
-                            if Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, newState) not in newTransitionList:
-                                newTransitionList.append(Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, newState))
-                                sortir += 1
+                            newTransition = Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, newState)
+                            newTransitionList.append(newTransition)
+                            sortir += 1
+                            # passe a la suivant
                             currentList = nextList
+                        # S'ils existent, on change la lettre 
                         else:
                             break
         return Automate(newTransitionList)
