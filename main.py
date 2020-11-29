@@ -28,7 +28,7 @@ aut = Automate(liste_trans, label = "A")
 print(aut)
 #aut1 : Automate
 aut1 = Automate(liste_trans, liste_etats, label = "A1" )
-print(aut1)
+# print(aut1)
 
 #aut.show("auto")
 
@@ -100,36 +100,20 @@ assert(Automate.estComplet(Automate.completeAutomate(auto_test, "abc"), "abc"))
 assert(Automate.estComplet(Automate.completeAutomate(aut, "abc"), "abc"))
 assert(Automate.estComplet(Automate.completeAutomate(auto_fichier, "abc"), "abc"))
 
-stateList = auto_fichier.listStates
-basicStateList = []
-for state in stateList:
-    basicStateList.append([state])
-stateListList = basicStateList
-currentListList = basicStateList
-nextListList = []
-end = False
-cpt = 0
+# # 4
+assert(Automate.estDeterministe(Automate.determinisation(auto_test)))
+auto_test.removeTransition(faultTransition)
+auto_test.removeTransition(tt3c)
+assert(Automate.estDeterministe(Automate.determinisation(auto_test)))
+assert(Automate.estDeterministe(Automate.determinisation(aut)))
+assert(Automate.estComplet(Automate.determinisation(auto_test),"abc"))
+s3 = State(2, False, False)
+s4 = State(3, False, True)
+tt0a = Transition(s1, "a", s1)
+tt0b = Transition(s1, "b", s1)
+tt3a = Transition(s3, "a", s4)
+auto_test2 = Automate([tt0a, tt0b, tt1a, tt2b, tt3a])
 
-nextListList = []
-for part in currentListList:
-    for basicPart in basicStateList:
-        nextListList.append(list(set(part + basicPart)))
-for stateL in nextListList:
-    if stateL not in stateListList:
-        stateListList.append(stateL)
-
-# while(not end or cpt>10):
-#     cpt += 1
-#     nextListList = []
-#     for part in currentListList:
-#         for basicPart in basicStateList:
-#             nextListList.append(list(set(part + basicPart)))
-#     for stateL in nextListList:
-#         if stateL not in stateListList:
-#             stateListList.append(stateL)
-#     # stateListList = list(set(stateListList+nextListList))
-#     # print(currentListList,"vs", nextListList,"\n")    
-#     if currentListList == nextListList:
-#         end = True
-#     currentListList = nextListList
-print(stateListList, currentListList, nextListList)
+# # 5
+assert(Automate.estDeterministe(Automate.determinisation(auto_fichier)))
+assert(Automate.estDeterministe(Automate.determinisation(auto_test2)))
