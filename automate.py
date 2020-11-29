@@ -220,7 +220,7 @@ class Automate(AutomateBase):
             # iteration des lettre
             for lettre in alphabet:
                 # iteration des etats existants
-                for listOfStates in stateListList.copy():
+                for listOfStates in copy.deepcopy(stateListList):
                     currentList = listOfStates
                     nextList = []
                     # Si on n'est pas bloque

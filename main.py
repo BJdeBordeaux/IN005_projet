@@ -64,9 +64,9 @@ auto_fichier = Automate.creationAutomate("auto.txt")
 # # 3.1
 # print(auto_fichier.succ(liste_etats, "a"))
 
-# # 3.2
-# assert(Automate.accepte(auto_fichier, "aaba"))
-# assert(not Automate.accepte(auto_fichier, "a"))
+# 3.2
+assert(Automate.accepte(auto_fichier, "aaba"))
+assert(not Automate.accepte(auto_fichier, "a"))
 
 # 3.3
 tt1a = Transition(s1, "a", s2)
