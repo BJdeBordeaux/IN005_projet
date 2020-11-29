@@ -115,5 +115,7 @@ tt3a = Transition(s3, "a", s4)
 auto_test2 = Automate([tt0a, tt0b, tt1a, tt2b, tt3a])
 
 # # 5
-assert(Automate.estDeterministe(Automate.determinisation(auto_fichier)))
+assert(not Automate.estDeterministe(auto_test2))
 assert(Automate.estDeterministe(Automate.determinisation(auto_test2)))
+print(auto_test2)
+print(Automate.determinisation(auto_test2))
