@@ -185,6 +185,7 @@ class Automate(AutomateBase):
             """
             for state in listState:
                 if state in auto.getListFinalStates():
+                    print("fin : ", state)
                     return True
             return False
         # declaration des variables
@@ -215,30 +216,39 @@ class Automate(AutomateBase):
         # Sinon, le nouvel automate est fait
         entrer = 0
         sortir = 1
+        compte = 1
         while(entrer != sortir):
             entrer = sortir
             # iteration des lettre
             for lettre in alphabet:
                 # iteration des etats existants
-                for listOfStates in copy.deepcopy(stateListList):
+                for listOfStates in stateListList[:]:
                     currentList = listOfStates
                     nextList = []
                     # Si on n'est pas bloque
                     while(currentList != nextList):
                         nextList = auto.succ(currentList, lettre)
+                        newTransition = Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, dictListStateToState[frozenset(set(listOfStates))])
+                        if currentList == nextList and  newTransition not in newTransitionList:
+                            newTransitionList.append(newTransition)
+                            sortir += 1
                         # ajout de nouvel etat et nouvelle transition s'ils n'existent pas
                         if nextList not in stateListList:
                             stateListList.append(nextList)
-                            newState = State(sortir,False, isFinal(nextList))
-                            newStateList.append(newState)
+                            newState = State(compte ,False, isFinal(nextList))
+                            compte += 1
+                            sortir += 1
                             dictListStateToState[frozenset(set(nextList))] = newState
+                            newStateList.append(newState)
                             newTransition = Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, newState)
                             newTransitionList.append(newTransition)
-                            sortir += 1
                             # passe a la suivant
                             currentList = nextList
-                        # S'ils existent, on change la lettre 
+                        # S'ils existent, on etablit la transition et change la lettre 
                         else:
+                            newTransition = Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, dictListStateToState[frozenset(set(nextList))])
+                            if newTransition not in newTransitionList:
+                                newTransitionList.append(newTransition)
                             break
         return Automate(newTransitionList)
         

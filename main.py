@@ -107,15 +107,21 @@ auto_test.removeTransition(tt3c)
 assert(Automate.estDeterministe(Automate.determinisation(auto_test)))
 assert(Automate.estDeterministe(Automate.determinisation(aut)))
 assert(Automate.estComplet(Automate.determinisation(auto_test),"abc"))
+
+
+# # 5
+s1 = State(0,True,False)
+s2 = State(1,False,False)
 s3 = State(2, False, False)
 s4 = State(3, False, True)
 tt0a = Transition(s1, "a", s1)
 tt0b = Transition(s1, "b", s1)
+tt1a = Transition(s1, "a", s2)
+tt2b = Transition(s2, "b", s3)
 tt3a = Transition(s3, "a", s4)
 auto_test2 = Automate([tt0a, tt0b, tt1a, tt2b, tt3a])
-
-# # 5
 assert(not Automate.estDeterministe(auto_test2))
 assert(Automate.estDeterministe(Automate.determinisation(auto_test2)))
-print(auto_test2)
-print(Automate.determinisation(auto_test2))
+assert(Automate.estDeterministe(Automate.determinisation(auto_test)))
+
+# print(Automate.determinisation(auto_test2))
