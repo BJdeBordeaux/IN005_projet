@@ -25,7 +25,7 @@ liste_trans = [t1,t2,t3,t4,t5,t6]
 liste_etats = [s1,s2,s3]
 #auto : Automate
 aut = Automate(liste_trans, label = "A")
-print(aut)
+# print(aut)
 #aut1 : Automate
 aut1 = Automate(liste_trans, liste_etats, label = "A1" )
 # print(aut1)
@@ -34,13 +34,11 @@ aut1 = Automate(liste_trans, liste_etats, label = "A1" )
 
 #3
 
-print("A partir ici code ecrit par Junji\n")
-print("######\n"*2)
 auto_fichier = Automate.creationAutomate("auto.txt")
 
 
 
-# # etat initial
+# # état initial
 # print(auto_fichier)
 
 # # 2.2.1
@@ -55,7 +53,7 @@ auto_fichier = Automate.creationAutomate("auto.txt")
 # auto_fichier.addState(s1)
 # print(auto_fichier)
 
-# # etat final
+# # état final
 
 # # 2.2.3
 # s1TranLi = auto_fichier.getListTransitionsFrom(s1)
@@ -64,9 +62,9 @@ auto_fichier = Automate.creationAutomate("auto.txt")
 # # 3.1
 # print(auto_fichier.succ(liste_etats, "a"))
 
-# 3.2
-assert(Automate.accepte(auto_fichier, "aaba"))
-assert(not Automate.accepte(auto_fichier, "a"))
+# # 3.2
+# assert(Automate.accepte(auto_fichier, "aaba"))
+# assert(not Automate.accepte(auto_fichier, "a"))
 
 # 3.3
 tt1a = Transition(s1, "a", s2)
@@ -107,8 +105,14 @@ auto_test.removeTransition(tt3c)
 assert(Automate.estDeterministe(Automate.determinisation(auto_test)))
 assert(Automate.estDeterministe(Automate.determinisation(aut)))
 assert(Automate.estComplet(Automate.determinisation(auto_test),"abc"))
+s3 = State(2, False, False)
+s4 = State(3, False, True)
+tt0a = Transition(s1, "a", s1)
+tt0b = Transition(s1, "b", s1)
+tt3a = Transition(s3, "a", s4)
+auto_test2 = Automate([tt0a, tt0b, tt1a, tt2b, tt3a])
 
-
+# # 5
 # # 5
 s1 = State(0,True,False)
 s2 = State(1,False,False)
@@ -120,8 +124,27 @@ tt1a = Transition(s1, "a", s2)
 tt2b = Transition(s2, "b", s3)
 tt3a = Transition(s3, "a", s4)
 auto_test2 = Automate([tt0a, tt0b, tt1a, tt2b, tt3a])
+auto_test2_det = Automate.determinisation(auto_test2)
+# print(auto_test2)
+# print(auto_test2_det)
 assert(not Automate.estDeterministe(auto_test2))
 assert(Automate.estDeterministe(Automate.determinisation(auto_test2)))
 assert(Automate.estDeterministe(Automate.determinisation(auto_test)))
 
-# print(Automate.determinisation(auto_test2))
+# 5.1
+assert(Automate.accepte(auto_fichier, "aaba"))
+assert(not Automate.accepte(Automate.complementaire(auto_fichier,"ab"), "aaba"))
+assert(not Automate.accepte(auto_fichier, "a"))
+assert(Automate.accepte(Automate.complementaire(auto_fichier,"ab"), "a"))
+
+# 5.1.1
+
+
+# 5.1.2
+
+
+# 5.2.2
+
+
+# fin
+print("If this phrase is printed, all tests success.")

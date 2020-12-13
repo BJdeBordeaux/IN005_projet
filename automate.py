@@ -7,6 +7,7 @@ from sp import *
 from parser import *
 from itertools import product
 from automateBase import AutomateBase
+from itertools import product 
 
 
 
@@ -20,9 +21,9 @@ class Automate(AutomateBase):
         successeurs = []
         # t: Transitions
         for t in self.getListTransitionsFrom(state):
-            if t.etiquette == lettre and t.stateDest not in successeurs:
-                successeurs.append(t.stateDest)
-        return successeurs
+            if t.etiquette == lettre:
+              successeurs.append(t.stateDest)
+        return list(set(successeurs))
 
 
     def succ (self, listStates, lettre):
@@ -54,16 +55,14 @@ class Automate(AutomateBase):
         """ Automate x str -> bool
         rend True si auto accepte mot, False sinon
         """
-        # accepte : bool
-        accepte = False
         # stateList : list[State]
         stateList = auto.getListInitialStates()
         for lettre in mot :
             stateList = auto.succ(stateList, lettre)
         for state in stateList:
             if state in auto.getListFinalStates():
-                accepte = True
-        return accepte
+              return True
+        return False
 
 
     @staticmethod
@@ -185,7 +184,6 @@ class Automate(AutomateBase):
             """
             for state in listState:
                 if state in auto.getListFinalStates():
-                    print("fin : ", state)
                     return True
             return False
         # declaration des variables
@@ -253,29 +251,124 @@ class Automate(AutomateBase):
         return Automate(newTransitionList)
         
     @staticmethod
-    def complementaire(auto,alphabet):
+    def complementaire(auto, alphabet):
         """ Automate -> Automate
         rend  l'automate acceptant pour langage le complémentaire du langage de a
         """
-              
-   
+        # on va creer un nouveau automate identique
+        auto_new = copy.deepcopy(auto)
+        # on va le determiniser si non determinise
+        if not Automate.estDeterministe(auto_new):
+            auto_new = Automate.determinisation(auto_new)
+        # on va le completer si non complet
+        if not Automate.estComplet(auto_new, alphabet):
+            auto_new = Automate.completeAutomate(auto_new)
+        # on change simplement les etats finaux
+        newStateList = auto_new.listStates
+        for index in range(len(newStateList)):
+            newStateList[index].fin = not newStateList[index].fin
+        return auto_new
+
+    @staticmethod
+    def test(auto):
+        """This is a test module written par Junji / Fanxiang
+        There is no need to copy this signature mdr"""
+        return auto
+
+    @staticmethod
+    def intersectionIsFinal(stateTuple, auto0, auto1):
+            """ (State,State) -> bool
+            Pour voir si l'etat est final pour l'intersection
+            """
+            (state0,state1) = stateTuple
+            if state0 not in auto0.getListFinalStates():
+                return False
+            if state1 not in auto1.getListFinalStates():
+                return False
+            return True
+
+    @staticmethod
+    def unionIsFinal(stateTuple, auto0, auto1):
+            """ (State,State) -> bool
+            Pour voir si l'etat est final pour l'union
+            """
+            (state0,state1) = stateTuple
+            if state0 in auto0.getListFinalStates():
+                return True
+            if state1 in auto1.getListFinalStates():
+                return True 
+            return False
+
+    @staticmethod
+    def produitCartesien (auto0, auto1, isFinal):
+        """ Automate x Automate x Fonction -> Automate
+        rend l'automate acceptant pour langage l'intersection ou l'union des langages des deux automates suivant la fonction passe
+        """
+        def getNextTupleList(stateTuple, lettre):
+            """(State,State)*str -> list[(State,State)]
+            obtenir un tuple d'etats a partir d'un autre
+            """
+            (state0, state1) = stateTuple
+            nextStateList0 = auto0.succElem(state0, lettre)
+            if nextStateList0 == []:
+                return []
+            nextStateList1 = auto1.succElem(state1, lettre)
+            if nextStateList1 == []:
+                return []
+            return product(nextStateList0, nextStateList1)
+        # declaration des variables
+        compte = 0
+        initialStateTuples = product(auto0.getListInitialStates(), auto1.getListInitialStates())
+        setStateTuples = set()
+        dictStateTupleToState = dict()
+        newTransitionList = []
+        newStateList = []
+        # etats initiaux
+        for stateTuple in initialStateTuples:
+            setStateTuples.add(stateTuple)
+            dictStateTupleToState[stateTuple] = State(compte, True, isFinal(stateTuple,auto0, auto1))
+            newStateList.append(dictStateTupleToState[stateTuple])
+            compte += 1
+        # # recuperer toutes l'alphabet
+        alphabet = list(set(auto0.getAlphabetFromTransitions()) & set(auto1.getAlphabetFromTransitions()))
+        # Si on a des ajouts, on continue
+        # Sinon, le nouvel automate est fait
+        entrer = 0
+        sortir = 1
+        while(entrer != sortir):
+            entrer = sortir
+            # iteration des lettre
+            for lettre in alphabet:
+                # iteration des etats existants
+                for aStateTuple in copy.deepcopy(setStateTuples):
+                    nextTupleList = getNextTupleList(aStateTuple, lettre)
+                    if nextTupleList == []:
+                        continue
+                    for aNewTuple in nextTupleList:
+                        if aNewTuple not in setStateTuples:
+                            setStateTuples.add(aNewTuple)
+                            newState = State(compte, False, isFinal(aNewTuple, auto0, auto1))
+                            newStateList.append(newState)
+                            dictStateTupleToState[aNewTuple] = newState
+                            compte += 1
+                            sortir += 1
+                        nextTransition = Transition(dictStateTupleToState[aStateTuple], lettre, dictStateTupleToState[aNewTuple])
+                        if nextTransition not in newTransitionList:
+                            newTransitionList.append(nextTransition)
+                            sortir += 1
+        return Automate(newTransitionList)
+    
     @staticmethod
     def intersection (auto0, auto1):
-        """ Automate x Automate -> Automate
-        rend l'automate acceptant pour langage l'intersection des langages des deux automates
-        """
-        return
+        return Automate.produitCartesien(auto0, auto1, Automate.intersectionIsFinal)
 
     @staticmethod
     def union (auto0, auto1):
         """ Automate x Automate -> Automate
         rend l'automate acceptant pour langage l'union des langages des deux automates
         """
-        return
+        return Automate.produitCartesien(auto0, auto1, Automate.unionIsFinal)
         
-
-   
-       
 
     @staticmethod
     def concatenation (auto1, auto2):
@@ -290,7 +383,10 @@ class Automate(AutomateBase):
         """ Automate  -> Automate
         rend l'automate acceptant pour langage l'étoile du langage de a
         """
-        return
+        new_auto = copy.deepcopy(auto)
+        # prend les Transition dont stateDest sont finaux
+        # ajout des Transition vers l'etat initial a partir de stateSrc de ces Transition
+        return new_auto
 
 
 
