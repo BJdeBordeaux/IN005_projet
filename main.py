@@ -132,19 +132,48 @@ assert(Automate.estDeterministe(Automate.determinisation(auto_test2)))
 assert(Automate.estDeterministe(Automate.determinisation(auto_test)))
 
 # 5.1
+impaireA = Automate.creationAutomate("impaireA.txt")
+termineParB = Automate.creationAutomate("termineParB.txt")
+assert(not Automate.accepte(impaireA,"aaababbbb"))
+assert(Automate.accepte(impaireA,"aaababbbba"))
+assert(Automate.accepte(termineParB,"aaababbbb"))
+assert(not Automate.accepte(termineParB,"aaababbbba"))
+
+# 5.1.1
 assert(Automate.accepte(auto_fichier, "aaba"))
 assert(not Automate.accepte(Automate.complementaire(auto_fichier,"ab"), "aaba"))
 assert(not Automate.accepte(auto_fichier, "a"))
 assert(Automate.accepte(Automate.complementaire(auto_fichier,"ab"), "a"))
 
-# 5.1.1
-
-
 # 5.1.2
+intersection = Automate.intersection(impaireA, termineParB)
+assert(not Automate.accepte(intersection,"aaababbbb"))
+assert(not Automate.accepte(intersection,"aaababbbba"))
+assert(Automate.accepte(intersection,"aaababbbbab"))
 
+# 5.1.3
+union = Automate.union(impaireA, termineParB)
+assert(Automate.accepte(union,"aaababbbb"))
+assert(Automate.accepte(union,"aaababbbba"))
+assert(Automate.accepte(union,"aaababbbbab"))
 
-# 5.2.2
+# 5.2
+motABA = Automate.creationAutomate("motABA.txt")
+assert(Automate.accepte(motABA,"aba"))
+assert(not Automate.accepte(motABA,""))
+assert(not Automate.accepte(motABA,"aaba"))
+assert(not Automate.accepte(motABA,"abaaba"))
+# cocatenation
+conca = Automate.concatenation(motABA, impaireA)
+assert(Automate.accepte(conca,"abaa"))
+assert(not Automate.accepte(conca,"aba"))
+assert(Automate.accepte(conca,"abababaa"))
 
+# etoile
+ABAEtoile = Automate.etoile(motABA)
+assert(Automate.accepte(ABAEtoile,""))
+assert(Automate.accepte(ABAEtoile,"abaabaabaaba"))
+assert(not Automate.accepte(motABA,"ab"))
 
 # fin
 print("If this phrase is printed, all tests success.")

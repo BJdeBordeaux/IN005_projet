@@ -78,18 +78,18 @@ class Automate(AutomateBase):
         nextList = []
         # end : bool
         end = False
+        # Si on n'a pas fini de parcourir, on continue
         while(not end):
             for state in currentList:
                 for lettre in alphabet:
+                    # Si il y a un etat qui ne constitue pas un etat de depart d'une transition
+                    # on retourne False
                     if auto.succElem(state, lettre) == []:
                         return False
+            # Construction de la liste avec les etats parcourus
             for lettre in alphabet :
                 nextList += auto.succ(currentList, lettre)
-            for state in nextList:
-                    if state not in stateList:
-                        stateList.append(state)
-            # # 上面那段或者这么写
-            # stateList = list(set(nextList+ stateList))
+            stateList = list(set(nextList+ stateList))
             currentList = list(set(nextList))
             if set(auto.listStates) == set(stateList): 
                 end = True
@@ -114,25 +114,23 @@ class Automate(AutomateBase):
         end = False
         # alphabet : list[str]
         alphabet = []
-        # deterministe : bool
         while(not end):
             for state in currentList:
                 alphabet = []
                 nextList = []
+                # parcourir les transition, s'il y a deux transitions avec les meme etat de depart
+                # et etiquette, retourne False
                 for transition in auto.getListTransitionsFrom(state):
                     if(transition.etiquette in alphabet) : 
                         return False
                     alphabet.append(transition.etiquette)
                     if(transition.stateDest not in nextList) : 
                         nextList.append(transition.stateDest)
+                # On termine une fois tous les etats parcourus
                 if stateList == auto.listStates: 
                     end = True
                 currentList = list(set(nextList))
-                for state in nextList:
-                    if state not in stateList:
-                        stateList.append(state)
-                # # or we can write
-                # stateList = list(set(stateList + nextList))
+                stateList = list(set(stateList + nextList))
         return True
         
 
@@ -158,13 +156,17 @@ class Automate(AutomateBase):
         while(not end):
             for state in currentList:
                 for lettre in alphabet:
+                    # ajout d'un etat pur pour les etat "non complet"
                     if auto_new.succElem(state, lettre) == []:
                         auto_new.addTransition(Transition(state, lettre, pureState))
                     nextList = list(set(nextList + auto_new.succ(currentList, lettre)))
+            # On s'arrete si tous les etats sont parcourus
+            # ">" c'est parce qu'on a un etat pure
             if set(stateList) > set(auto.listStates): 
                 end = True
             stateList = list(set(stateList + nextList))
             currentList = list(set(nextList))
+        # Ajout des transitions pour l'etat pur
         for lettre in alphabet:
             auto_new.addTransition(Transition(pureState, lettre, pureState))
         return auto_new
@@ -204,7 +206,7 @@ class Automate(AutomateBase):
         # preparation pour le premier etat
         stateListList.append(currentList)
         initialState = State(0, True, isFinal(currentList))
-        # enregistrement pour la relation entre une liste d'etat et un etat correspondante
+        # enregistrement pour la relation entre une liste d'etat et un etat correspondants
         dictListStateToState[frozenset(set(currentList))] = initialState
         newStateList.append(initialState)
         # recuperer toutes l'alphabet
@@ -225,17 +227,22 @@ class Automate(AutomateBase):
                     nextList = []
                     # Si on n'est pas bloque
                     while(currentList != nextList):
+                        # trouver l'ensemble des "etats prochains"
                         nextList = auto.succ(currentList, lettre)
                         newTransition = Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, dictListStateToState[frozenset(set(listOfStates))])
+                        # ajout de nouvelle transition s'elle n'existe pas
                         if currentList == nextList and  newTransition not in newTransitionList:
                             newTransitionList.append(newTransition)
                             sortir += 1
                         # ajout de nouvel etat et nouvelle transition s'ils n'existent pas
                         if nextList not in stateListList:
+                            # enregistrement des etats parcourus sous forme de liste
                             stateListList.append(nextList)
+                            # creation de nouvel etat
                             newState = State(compte ,False, isFinal(nextList))
                             compte += 1
                             sortir += 1
+                            # enregistrement dans le dictionnaire, liste des nouveaux etats et celle des nouvelles transitions
                             dictListStateToState[frozenset(set(nextList))] = newState
                             newStateList.append(newState)
                             newTransition = Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, newState)
@@ -247,6 +254,7 @@ class Automate(AutomateBase):
                             newTransition = Transition(dictListStateToState[frozenset(set(listOfStates))], lettre, dictListStateToState[frozenset(set(nextList))])
                             if newTransition not in newTransitionList:
                                 newTransitionList.append(newTransition)
+                            # on passe a verifier l'etat suivant
                             break
         return Automate(newTransitionList)
         
@@ -278,7 +286,8 @@ class Automate(AutomateBase):
     @staticmethod
     def intersectionIsFinal(stateTuple, auto0, auto1):
             """ (State,State) -> bool
-            Pour voir si l'etat est final pour l'intersection
+            Pour voir si le nouvel etat est final pour l'intersection
+            a partir d'un tuple d'etats
             """
             (state0,state1) = stateTuple
             if state0 not in auto0.getListFinalStates():
@@ -290,7 +299,8 @@ class Automate(AutomateBase):
     @staticmethod
     def unionIsFinal(stateTuple, auto0, auto1):
             """ (State,State) -> bool
-            Pour voir si l'etat est final pour l'union
+            Pour voir si le nouvel etat est final pour l'union
+            a partir d'un tuple d'etats
             """
             (state0,state1) = stateTuple
             if state0 in auto0.getListFinalStates():
@@ -323,10 +333,13 @@ class Automate(AutomateBase):
         dictStateTupleToState = dict()
         newTransitionList = []
         newStateList = []
-        # etats initiaux
+        # construction des etats initiaux
         for stateTuple in initialStateTuples:
+            # enregistrement de tuple d'etats
             setStateTuples.add(stateTuple)
+            # creation de nouveau etat
             dictStateTupleToState[stateTuple] = State(compte, True, isFinal(stateTuple,auto0, auto1))
+            # enregistrement de ce etat
             newStateList.append(dictStateTupleToState[stateTuple])
             compte += 1
         # # recuperer toutes l'alphabet
@@ -341,10 +354,14 @@ class Automate(AutomateBase):
             for lettre in alphabet:
                 # iteration des etats existants
                 for aStateTuple in copy.deepcopy(setStateTuples):
+                    # obtenir le tuple d'etat suivant
                     nextTupleList = getNextTupleList(aStateTuple, lettre)
+                    # si c'est vide, cela ne passe pas, on verifie le prochain tuple
                     if nextTupleList == []:
                         continue
+                    # iteration de chaque nouveau tuple 
                     for aNewTuple in nextTupleList:
+                        # s'il ne se trouve pas dans le nouvel automate, on l'ajoute et l'enregistre dans les structures correspondantes
                         if aNewTuple not in setStateTuples:
                             setStateTuples.add(aNewTuple)
                             newState = State(compte, False, isFinal(aNewTuple, auto0, auto1))
@@ -352,6 +369,7 @@ class Automate(AutomateBase):
                             dictStateTupleToState[aNewTuple] = newState
                             compte += 1
                             sortir += 1
+                        # ajout de transition
                         nextTransition = Transition(dictStateTupleToState[aStateTuple], lettre, dictStateTupleToState[aNewTuple])
                         if nextTransition not in newTransitionList:
                             newTransitionList.append(nextTransition)
@@ -374,8 +392,49 @@ class Automate(AutomateBase):
     def concatenation (auto1, auto2):
         """ Automate x Automate -> Automate
         rend l'automate acceptant pour langage la concaténation des langages des deux automates
+        on s'appuie sur une construction par copie
         """
-        return
+        def addIdNumber(auto):
+            """ Automate -> int
+            rend un nombre qui vaut ((le plus grand id de l'automate passe) + 1)
+            pour faire la difference entre les id des deux automates
+            """
+            max = 0
+            for state in auto.listStates:
+                if max < state.id:
+                    max = state.id
+            return max+1
+        # copy d'automates pour la creation d'un nouveau
+        auto_new1 = copy.deepcopy(auto1)
+        IdNumberToAdd = addIdNumber(auto_new1)
+        auto_new2 = copy.deepcopy(auto2)
+        listTransitionsAModifier = []
+        # traiter les id de deuxieme automate a concatener
+        for state in auto_new2.listStates:
+            state.id += IdNumberToAdd
+        # trouver les transitions dont l'etat de destination est un etat final
+        for transition in auto_new1.listTransitions:
+            if transition.stateDest.fin == True:
+                listTransitionsAModifier.append(transition)
+        # supprimer les etats finaux de l'automate 1
+        for state in auto_new1.listStates:
+            if state.fin == True:
+                auto_new1.removeState(state)
+        # ajouter des transitions d'etats "avant-finaux" de automate 1 
+        # a etats initiaux de automate 2
+        for transition in listTransitionsAModifier:
+            for initialState in auto_new2.getListInitialStates():
+                auto_new1.addState(initialState)
+                auto_new1.addTransition(Transition(transition.stateSrc, transition.etiquette, initialState))
+        # modifier les etats initiaux de l'automate 2 pour qu'ils ne le soient
+        for state in auto_new2.listStates:
+            if state.init == True:
+                state.init = False
+        # ajouter les transitions de automate 2 dans automate 1
+        for transition in auto_new2.listTransitions:
+            auto_new1.addState(transition.stateDest)
+            auto_new1.addTransition(Transition(transition.stateSrc, transition.etiquette, transition.stateDest))
+        return auto_new1
         
        
     @staticmethod
@@ -384,8 +443,21 @@ class Automate(AutomateBase):
         rend l'automate acceptant pour langage l'étoile du langage de a
         """
         new_auto = copy.deepcopy(auto)
-        # prend les Transition dont stateDest sont finaux
+        listInitialStates = auto.getListInitialStates()
+        listTransitionsAModifier = []
+        # transformer des etats initiaux en finaux
+        for state in new_auto.listStates:
+            if state.init == True:
+                state.fin = True
+        # prendre les Transition dont stateDest sont finaux
+        for transition in new_auto.listTransitions:
+            if transition.stateDest.fin == True:
+                listTransitionsAModifier.append(transition)
         # ajout des Transition vers l'etat initial a partir de stateSrc de ces Transition
+        for transition in listTransitionsAModifier:
+            for initialState in listInitialStates:
+                new_auto.addTransition(Transition(transition
+            .stateSrc, transition.etiquette, initialState))
         return new_auto
 
 

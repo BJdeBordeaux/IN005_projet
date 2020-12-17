@@ -114,3 +114,45 @@
         # if auto.label == None:
         #     return Automate(newListTransitions, newListStates)
         # return Automate(newListTransitions, newListStates, label = "det("+auto.label+")")
+
+// pour concatenation
+         # on va creer un nouveau automate identique
+    #     auto_new1 = copy.deepcopy(auto1)
+
+      
+    #     auto_new2 = copy.deepcopy(auto2)
+
+
+    #     stateList1 =auto_new1.listStates
+    #     stateList2 =auto_new2.listStates
+
+    #     TransitionList1 = auto_new1.listTransitions
+
+    #     initialStatelist2 = auto_new2.getListInitialStates()
+        
+    #     newStateList = stateList1
+    #     newTransitionList = list(set(auto_new1.listTransitions + list(set(auto_new2.listTransitions) 
+        
+    #   for state in stateList1 :
+    #     if state.fin == True :
+    #       for transition in TransitionList1:
+    #           if transition.stateDest == state :
+    #             for index in range (len(initialStatelist2)):
+    #               newTransition = Transition(transition.stateSrc, transition.etiquette,initialStatelist2[index])
+
+    #               newTransitionList.append(newTransition)
+    #   for index in range(len(newStateList)):
+    #     newStateList[index].fin = not newStateList[index].fin
+    #   for index in range(len(stateList2)):
+    #     stateList2[index].init = not stateList2[index].init
+    
+  
+        
+    #   newStateList = newStateList + stateList2
+        
+    #   Automate(newTransitionList)
+      
+          
+
+
+    #     return Automate(newTransitionList)
