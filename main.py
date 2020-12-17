@@ -38,7 +38,7 @@ auto_fichier = Automate.creationAutomate("auto.txt")
 
 
 
-# # état initial
+# # etat initial
 # print(auto_fichier)
 
 # # 2.2.1
@@ -53,7 +53,7 @@ auto_fichier = Automate.creationAutomate("auto.txt")
 # auto_fichier.addState(s1)
 # print(auto_fichier)
 
-# # état final
+# # etat final
 
 # # 2.2.3
 # s1TranLi = auto_fichier.getListTransitionsFrom(s1)
@@ -134,6 +134,8 @@ assert(Automate.estDeterministe(Automate.determinisation(auto_test)))
 # 5.1
 impaireA = Automate.creationAutomate("impaireA.txt")
 termineParB = Automate.creationAutomate("termineParB.txt")
+impaireA.show("impareA")
+termineParB.show("termineParB")
 assert(not Automate.accepte(impaireA,"aaababbbb"))
 assert(Automate.accepte(impaireA,"aaababbbba"))
 assert(Automate.accepte(termineParB,"aaababbbb"))
@@ -147,30 +149,35 @@ assert(Automate.accepte(Automate.complementaire(auto_fichier,"ab"), "a"))
 
 # 5.1.2
 intersection = Automate.intersection(impaireA, termineParB)
+intersection.show("intersection")
 assert(not Automate.accepte(intersection,"aaababbbb"))
 assert(not Automate.accepte(intersection,"aaababbbba"))
 assert(Automate.accepte(intersection,"aaababbbbab"))
 
 # 5.1.3
 union = Automate.union(impaireA, termineParB)
+union.show("union")
 assert(Automate.accepte(union,"aaababbbb"))
 assert(Automate.accepte(union,"aaababbbba"))
 assert(Automate.accepte(union,"aaababbbbab"))
 
 # 5.2
 motABA = Automate.creationAutomate("motABA.txt")
+motABA.show("motABA")
 assert(Automate.accepte(motABA,"aba"))
 assert(not Automate.accepte(motABA,""))
 assert(not Automate.accepte(motABA,"aaba"))
 assert(not Automate.accepte(motABA,"abaaba"))
 # cocatenation
 conca = Automate.concatenation(motABA, impaireA)
+conca.show("conca")
 assert(Automate.accepte(conca,"abaa"))
 assert(not Automate.accepte(conca,"aba"))
 assert(Automate.accepte(conca,"abababaa"))
 
 # etoile
 ABAEtoile = Automate.etoile(motABA)
+ABAEtoile.show("ABAEtoile")
 assert(Automate.accepte(ABAEtoile,""))
 assert(Automate.accepte(ABAEtoile,"abaabaabaaba"))
 assert(not Automate.accepte(motABA,"ab"))
